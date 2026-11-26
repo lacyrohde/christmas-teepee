@@ -1,0 +1,17 @@
+{
+  "name": "christmas-teepee",
+  "version": "1.0.0",
+  "description": "Planner and STL generator for a 3D-printed walk-in teepee Christmas tree frame",
+  "scripts": {
+    "generate": "node cli/generate.mjs",
+    "example": "node cli/generate.mjs --leg 96.25 --base 60 --door 40 --ceiling 108 --socket 38.6 --out examples/96.25in-legs-60in-base-38.6mm"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "manifold-3d": "3.5.4"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

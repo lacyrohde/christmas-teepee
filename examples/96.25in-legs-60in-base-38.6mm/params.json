@@ -1,0 +1,16 @@
+{
+  "params": {
+    "legLength": 96.25,
+    "baseWidth": 60,
+    "doorHeight": 40,
+    "ceiling": 108,
+    "socketMm": 38.6
+  },
+  "lean_deg": 16.79,
+  "frame_height_in": 93.05,
+  "star_top_in": 106.05,
+  "ceiling_clearance_in": 1.95,
+  "base_piece_in": 27,
+  "crosspiece_in_approx": 15.24,
+  "filament_g_approx": 1216
+}

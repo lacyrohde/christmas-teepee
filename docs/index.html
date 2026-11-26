@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Walk-In Teepee Tree Planner</title>
+<meta name="description" content="Plan a walk-in teepee Christmas tree and download 3D-printable connectors sized to your measurements.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* layout: 3D model + measurements first, then results, then STL download, then build guide; one column on phones */
+  --bg:#f2f4f1; --surface:#ffffff; --ink:#1b2620; --muted:#58675e; --line:#d6ddd7;
+  --spruce:#2f5d46; --petg:#d9661f; --warn:#b3261e; --ok:#2e7d4f;
+  --warn-bg:#fbe9e7; --ok-bg:#e6f3eb; --petg-bg:#fcebdf; --spruce-bg:#e3ede7;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111714; --surface:#19211d; --ink:#e6ece8; --muted:#9fb1a6; --line:#2c3933;
+    --spruce:#83c6a3; --petg:#f2934f; --warn:#ff8a80; --ok:#82d4a6;
+    --warn-bg:#3a1f1d; --ok-bg:#1c3326; --petg-bg:#3a2617; --spruce-bg:#1f3129;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111714; --surface:#19211d; --ink:#e6ece8; --muted:#9fb1a6; --line:#2c3933;
+  --spruce:#83c6a3; --petg:#f2934f; --warn:#ff8a80; --ok:#82d4a6;
+  --warn-bg:#3a1f1d; --ok-bg:#1c3326; --petg-bg:#3a2617; --spruce-bg:#1f3129;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+a{color:var(--spruce)}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 64px;display:grid;gap:28px}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,6vw,44px);line-height:1.05;margin:0 0 6px;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0 0 6px;color:var(--muted);max-width:68ch}
+h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0 0 12px;text-wrap:balance}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.top{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.top{grid-template-columns:1fr}}
+#view{position:relative;width:100%;height:540px;border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid var(--line);touch-action:none}
+@media (max-width:820px){#view{height:440px}}
+#view canvas{display:block;width:100%;height:100%}
+#viewMsg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted)}
+.hint{position:absolute;left:12px;bottom:10px;font-size:13px;color:var(--muted);background:var(--surface);padding:2px 8px;border-radius:6px;border:1px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.controls{display:grid;gap:14px}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-weight:500;font-size:15px}
+.ctl output{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--spruce)}
+.ctl input[type=range]{width:100%;accent-color:var(--spruce);margin:6px 0 0}
+.ctl input[type=number]{font:inherit;font-family:var(--mono);width:110px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.ctl small{color:var(--muted);font-size:13px;display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.btn{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--spruce);background:transparent;color:var(--spruce);padding:6px 12px;font-weight:500;font-size:14px;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:var(--spruce-bg)}
+button.primary{background:var(--spruce);color:var(--surface)}
+button.primary:hover{opacity:.9;background:var(--spruce)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--petg);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.stat b{display:block;font-family:var(--mono);font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.note{font-size:14px;color:var(--muted);margin:10px 0 0}
+.errors{color:var(--warn);font-size:14px;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--muted);font-weight:500}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tablewrap{overflow-x:auto}
+.buy{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+.buy div{background:var(--spruce-bg);color:var(--spruce);border-radius:10px;padding:8px 12px;font-weight:600}
+.boardlist{margin:8px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.part{border:1px solid var(--line);border-left:4px solid var(--petg);border-radius:0 10px 10px 0;padding:12px 14px;background:var(--surface);display:grid;gap:6px}
+.part h3{margin:0;font-size:17px;font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.part h3 .qty{font-family:var(--mono);color:var(--petg);font-size:15px}
+.part p{margin:0;font-size:14px}
+.part dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+.part dt{color:var(--muted)}
+.part dd{margin:0}
+.part button{justify-self:start;border-color:var(--petg);color:var(--petg)}
+.part button:hover{background:var(--petg-bg)}
+.gen{border:2px solid var(--spruce)}
+#genStatus{font-size:14px;color:var(--muted)}
+.files a{font-family:var(--mono);font-size:14px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.cols h3{font-size:15px;margin:0 0 6px;font-weight:600}
+.cols ul,.steps{margin:0;padding-left:18px;font-size:15px}
+.cols li,.steps li{margin:3px 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+footer{font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Walk-in teepee tree planner</h1>
+    <p>A six-legged teepee frame you cover in garland and lights, big enough for kids to sit inside. The legs are 1½" square wood strips; every joint is a 3D-printed connector, so every wood cut is a straight, square cut.</p>
+    <p>Set your measurements below. The model, cut list, and shopping list update as you go, and the <a href="#generate">STL files</a> are built to match, right in your browser.</p>
+  </header>
+
+  <section class="top">
+    <div>
+      <div id="view"><div id="viewMsg">The 3D model needs WebGL, which this browser has turned off. Everything else on the page still works.</div><div class="hint">Drag to rotate · pinch or scroll to zoom</div></div>
+      <div class="legend">
+        <span><i class="sw" style="background:#4f7a5f"></i>Wood, 1½" square</span>
+        <span><i class="sw" style="background:#e0702a"></i>3D-printed</span>
+        <span><i class="sw" style="background:#d4af37"></i>Star</span>
+        <span><i class="sw" style="background:#9aa7b0"></i>Ceiling</span>
+      </div>
+    </div>
+    <div class="card controls">
+      <h2>Your measurements</h2>
+      <div class="ctl"><label for="legLen">Leg length <output id="legLenOut"></output></label><input type="range" id="legLen" min="72" max="120" step="0.25" value="96"><small>End to end. Measure your actual boards: "8 ft" is often 96" to 96¼".</small></div>
+      <div class="ctl"><label for="baseW">Base width, corner to corner <output id="baseWOut"></output></label><input type="range" id="baseW" min="48" max="84" step="1" value="60"></div>
+      <div class="ctl"><label for="doorH">Door crosspiece height <output id="doorHOut"></output></label><input type="range" id="doorH" min="24" max="54" step="1" value="40"></div>
+      <div class="ctl"><label for="ceil">Ceiling height <output id="ceilOut"></output></label><input type="range" id="ceil" min="84" max="168" step="1" value="108"></div>
+      <div class="ctl"><label for="socket">Socket size (mm)</label><input type="number" id="socket" min="37.5" max="40.5" step="0.1" value="39.1"><small>39.1 mm fits a true 1½" strip with 1 mm to spare. Print the <a href="#fit">fit-test rings</a> and enter the size that fits your wood.</small></div>
+      <div>
+        <span id="ceilPill" class="pill ok"></span>
+        <div id="ceilNote" class="note" style="margin-top:6px"></div>
+        <div id="errors" class="errors"></div>
+      </div>
+      <div class="row">
+        <button id="fitBtn" type="button">Shorten legs to fit the ceiling</button>
+        <button id="exampleBtn" type="button">Load the example build</button>
+        <button id="copyBtn" type="button">Copy my measurements</button>
+      </div>
+      <div id="copyMsg" class="note" style="margin-top:0"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="card gen" id="generate">
+    <h2>Download your STL files</h2>
+    <p class="note" style="margin-top:0">Built in your browser from the measurements above. Nothing is uploaded.</p>
+    <div class="row" style="margin-top:12px">
+      <button id="genBtn" type="button" class="primary">Build all 7 STL files (.zip)</button>
+      <button id="fitTestBtn" type="button">Build fit-test rings</button>
+      <span id="genStatus"></span>
+    </div>
+    <div class="tablewrap files" id="files" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card">
+    <h2>Wood cut list</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Piece</th><th>Qty</th><th>Length</th><th>How to cut</th></tr></thead>
+      <tbody id="cutBody"></tbody>
+    </table></div>
+    <p class="note">Every cut is a square 90° cut; the printed parts hold all the angles. Use 1½" × 1½" stock (sold as 2×2s).</p>
+    <div class="buy" id="buy"></div>
+    <ul class="boardlist" id="boardList"></ul>
+  </section>
+
+  <section>
+    <h2>Printed parts</h2>
+    <div class="parts" id="parts"></div>
+    <p class="note" id="printNote"></p>
+  </section>
+
+  <section class="card">
+    <h2>Shopping list</h2>
+    <div class="cols" id="supplies"></div>
+  </section>
+
+  <section class="card">
+    <h2>Lights and garland</h2>
+    <div class="cols">
+      <div><h3>1. Inside lights</h3><ul>
+        <li>Tie lights to the inside face of the legs so the inside glows and light shines out through the garland.</li>
+        <li>Below the crosspiece, go back and forth: around the five closed sides, up 6", and back.</li>
+        <li>Above the crosspiece, spiral all the way around.</li>
+        <li>Zip-tie at every leg. Start near your outlet and check how many strands can plug end to end.</li>
+      </ul></div>
+      <div><h3>2. Garland</h3><ul>
+        <li>Base layer: thin pine garland with a bendable wire center, wrapped bottom up in rows about 5" apart. The wire core keeps each strand straight between legs.</li>
+        <li>Tie at every leg, and once mid-span to the light wire behind it so long spans don't sag.</li>
+        <li>Fullness layer: wide garland with long posable tips, wrapped over the base about 12" apart. Bend the tips out and slightly down, like real boughs; fill thin spots with wired pine picks.</li>
+        <li>Use reusable twist ties so nothing needs cutting at takedown.</li>
+        <li>Run strands up each door leg and along the crosspiece for a clean doorway.</li>
+      </ul></div>
+      <div><h3>3. Outside lights</h3><ul>
+        <li>Weave a second set through the garland, tucking bulbs into the branches for depth.</li>
+        <li>Bend garland tips over the wires to hide them.</li>
+      </ul></div>
+      <div><h3>4. Disco ball (optional)</h3><ul>
+        <li>The hub has an eye-bolt mount underneath: a ¼"-20 nut slides into a side slot and the eye bolt threads into it. Hang a small ball on fishing line or an S-hook.</li>
+        <li>Aim a small battery spotlight at it from a base corner; without a focused light it won't sparkle.</li>
+      </ul></div>
+    </div>
+    <p class="note" id="lightNote"></p>
+  </section>
+
+  <section class="two">
+    <div class="card" id="fit">
+      <h2>Before you print</h2>
+      <ol class="steps">
+        <li>Cut a short piece off one board and sand the edges lightly.</li>
+        <li>Build and print the three fit-test rings. They're 0.5 mm apart and marked with 1, 2 and 3 notches.</li>
+        <li>Slide each onto the strip. The right one goes on by hand with light friction and doesn't wobble.</li>
+        <li>Enter that ring's size in Socket size, set your other measurements, and build the full set.</li>
+        <li>Paint the strips before fitting, or leave the last 2" of each end bare: paint adds thickness.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Assembly</h2>
+      <ol class="steps">
+        <li>Build the U upside down: four 2-arm corners, two doorway corners, five base pieces, one flat-head screw up through the bottom of each arm. Flip it over.</li>
+        <li>Slide the nylon lock nut into the slot on the side of the hub's boss and thread the disco ball eye bolt up into it, then press in the star post.</li>
+        <li>Slide a crosspiece sleeve onto each front leg <em>before</em> standing them up.</li>
+        <li>Drop three legs into alternating corners, lean them together, and press the hub onto their tops from a ladder.</li>
+        <li>Add the other three legs: foot first, then tip the top into its socket.</li>
+        <li>Slide the sleeves to door height, measure between them, cut the crosspiece, set it in, and screw the sleeves.</li>
+        <li>Lights, garland, star, disco ball.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="card">
+    <p style="margin:0 0 6px"><strong>Safety:</strong> LED lights only. Push on the finished frame from every direction before decorating, and don't let anyone climb it. Keep cords tucked behind a base corner, away from pets and small hands.</p>
+    <p style="margin:0">Source, command-line generator, and issues: <a href="https://github.com/lacyrohde/christmas-teepee">github.com/lacyrohde/christmas-teepee</a>. MIT licensed, including the generated models.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module">
+import { DESIGN, deriveGeometry, validate, buildParts, buildFitTests, toSTL, gramsFor } from './parts.js';
+
+const EXAMPLE = { legLength: 96.25, baseWidth: 60, doorHeight: 40, ceiling: 108, socketMm: 38.6 };
+const MANIFOLD_URL = 'https://cdn.jsdelivr.net/npm/manifold-3d@3.5.4/manifold.js';
+const $ = id => document.getElementById(id);
+
+function frac(x){
+  let w=Math.floor(x+1e-9), e=Math.round((x-w)*8);
+  if(e===8){w++;e=0;}
+  if(!e) return w+'"';
+  let n=e,d=8; while(n%2===0){n/=2;d/=2;}
+  return (w?w+' ':'')+n+'/'+d+'"';
+}
+function ftin(x){ const r=Math.round(x*8)/8; const f=Math.floor(r/12); return f+"' "+frac(r-f*12); }
+
+function read(){ return { legLength:+$('legLen').value, baseWidth:+$('baseW').value, doorHeight:+$('doorH').value, ceiling:+$('ceil').value, socketMm:+$('socket').value }; }
+function set(p){ $('legLen').value=p.legLength; $('baseW').value=p.baseWidth; $('doorH').value=p.doorHeight; $('ceil').value=p.ceiling; $('socket').value=p.socketMm; }
+function dimString(p){ return `Leg ${frac(p.legLength)}, base ${frac(p.baseWidth)} corner to corner, crosspiece at ${frac(p.doorHeight)}, ceiling ${frac(p.ceiling)}, socket ${p.socketMm.toFixed(1)} mm`; }
+
+// remember and share settings through the URL hash
+function saveHash(p){ try{ history.replaceState(null,'','#'+['leg',p.legLength,'base',p.baseWidth,'door',p.doorHeight,'ceil',p.ceiling,'sock',p.socketMm].join('-').replace(/\./g,'p')); }catch(e){} }
+function loadHash(){
+  const m=/^#leg-([\dp]+)-base-([\dp]+)-door-([\dp]+)-ceil-([\dp]+)-sock-([\dp]+)$/.exec(location.hash);
+  if(!m) return;
+  const n=s=>+s.replace('p','.');
+  set({legLength:n(m[1]),baseWidth:n(m[2]),doorHeight:n(m[3]),ceiling:n(m[4]),socketMm:n(m[5])});
+}
+
+function stockPlan(g){
+  const kerf=0.125, stock=g.legLength;
+  const pieces=[...Array(5)].map(()=>({n:'base',len:g.basePiece})).concat([{n:'crosspiece',len:g.crosspiece+1}]).sort((a,b)=>b.len-a.len);
+  const bins=[];
+  for(const pc of pieces){ let b=bins.find(b=>b.left>=pc.len); if(!b){b={left:stock,items:[]};bins.push(b);} b.items.push(pc); b.left-=pc.len+kerf; }
+  return bins;
+}
+
+function updateUI(p){
+  const g=deriveGeometry(p);
+  $('legLenOut').textContent=frac(p.legLength);
+  $('baseWOut').textContent=ftin(p.baseWidth);
+  $('doorHOut').textContent=frac(p.doorHeight);
+  $('ceilOut').textContent=ftin(p.ceiling);
+  const problems=validate(p);
+  $('errors').textContent=problems.join(' ');
+  $('genBtn').disabled=problems.length>0;
+  const pill=$('ceilPill');
+  if(g.clearance>=1){ pill.className='pill ok'; pill.textContent='A 10" star clears the ceiling by '+frac(g.clearance); $('ceilNote').textContent=''; }
+  else { pill.className='pill warn'; pill.textContent=g.clearance<0?'The star hits the ceiling by '+frac(-g.clearance):'The star is within 1" of the ceiling'; $('ceilNote').textContent='Cut all six legs to '+frac(Math.floor(g.maxLegForCeiling*8)/8)+' or less to fit.'; }
+  $('fitBtn').disabled=g.clearance>=1;
+
+  $('stats').innerHTML=[
+    [g.lean.toFixed(1)+'°','Leg lean from vertical'],
+    [ftin(g.hubTop),'Frame height, top of hub'],
+    [ftin(g.starTop),'With a 10" star on the post'],
+    ['≈'+frac(g.doorAtFloor),'Door opening at the floor'],
+    ['≈'+frac(g.crosspiece),'Door opening at the crosspiece'],
+    [ftin(g.insideWidth),'Inside, wall to wall']
+  ].map(s=>'<div class="stat"><b>'+s[0]+'</b><span>'+s[1]+'</span></div>').join('');
+
+  $('cutBody').innerHTML=[
+    ['Legs','6',frac(p.legLength),'Square ends. All six must match; trim to the shortest if they don\'t.'],
+    ['Base pieces','5',frac(g.basePiece),'Square cut. They run between the corner connectors.'],
+    ['Door crosspiece','1','≈'+frac(g.crosspiece),'Cut last: measure between the two sleeves on the standing frame.']
+  ].map(r=>'<tr><td>'+r[0]+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td><td>'+r[3]+'</td></tr>').join('');
+  const bins=stockPlan(g), strips=6+bins.length;
+  $('buy').innerHTML='<div>'+strips+' boards, 1½" × 1½" × '+frac(p.legLength)+'</div>';
+  $('boardList').innerHTML='<li>6 boards: legs, used full length</li>'+bins.map((b,i)=>'<li>Board '+(7+i)+': '+b.items.map(it=>it.n==='base'?frac(it.len)+' base':'≈'+frac(it.len)+' crosspiece (1" extra)').join(', ')+'</li>').join('');
+
+  const a=g.lean.toFixed(1)+'°';
+  const parts=[
+    {k:'hub',name:'Top hub',q:'×1',does:'Holds the six leg tops and the star post. A boss underneath takes an eye bolt for a disco ball.',angle:'6 sockets tilted '+a+' out from vertical',print:'Upside down, sockets facing up. No supports.'},
+    {k:'spike',name:'Star post',q:'×1',does:'A 6" cone, 1" tapering to ½", that most spring-coil and tube-style star toppers grip.',angle:'Straight',print:'Standing, with a 10 mm brim.'},
+    {k:'corner2',name:'Base corner, 2 arms',q:'×4',does:'Joins two base pieces at 120° and holds a leg foot.',angle:'Foot socket tilted '+a+' toward the center',print:'Flat, arms on the bed, no supports (45° roofs with a short flat ridge over the arm sockets). One flat-head screw per arm, from underneath.'},
+    {k:'corner1',name:'Doorway corner, 1 arm',q:'×2',does:'The two open ends of the U, either side of the door. One left, one right.',angle:'Foot socket tilted '+a,print:'Flat, arm on the bed, no supports. One flat-head screw from underneath.'},
+    {k:'sleeve',name:'Crosspiece sleeve',q:'×2',does:'Slides onto a front leg and holds one end of the door crosspiece level. One left, one right.',angle:'Level side socket on a sleeve tilted '+a,print:'As oriented, no supports: a solid foot fills the space under the side socket. One screw into the leg.'}
+  ];
+  $('parts').innerHTML=parts.map(x=>'<div class="part"><h3>'+x.name+'<span class="qty">'+x.q+'</span></h3><p>'+x.does+'</p><dl><dt>Angle</dt><dd>'+x.angle+'</dd><dt>Print</dt><dd>'+x.print+'</dd></dl><button type="button" data-k="'+x.k+'">Show in model</button></div>').join('');
+  $('parts').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>flash(b.dataset.k)));
+  $('printNote').textContent='10 printed parts. Sockets are '+p.socketMm.toFixed(1)+' mm square and 2" deep (1.5" on the base arms, where screws do the holding), with corner reliefs; sideways sockets have sloped roofs with a short flat ridge so nothing needs supports; sleeves are 0.5 mm looser so they slide. PETG, 0.20mm Standard, Arachne walls, 4 walls, 20% gyroid infill, 4 top/bottom layers, about 1.2 kg in all. The hub needs a bed about 190 mm wide.';
+
+  const gar=garland(g, p);
+  const sup=[
+    ['Wood',[strips+' boards, 1½" × 1½" × '+frac(p.legLength)+' (sold as 2×2s)','Paint (green hides gaps in the garland) and 120-grit sandpaper']],
+    ['Printing',['About 1.2 kg of PETG (two 1 kg spools)','10 printed parts plus 3 fit-test rings']],
+    ['Hardware',['10 × #8 × 1¼" flat-head wood screws (base arms, from underneath) and 2 more for the sleeves','Disco ball mount: ¼"-20 × 1" forged eye bolt and a ¼"-20 nylon lock nut (no washer)','Felt pads for hard floors (optional)']],
+    ['Decor',['Base garland: about '+gar.baseFt+' ft of thin pine garland with a bendable wire center ('+gar.baseN+' × 9 ft strands, 220+ tips each), wrapped at 5" rows','Fullness garland: about '+gar.fullFt+' ft of wide garland (12–16") with long posable tips ('+gar.fullN+' × 9 ft strands), wrapped at 12" rows; PE tips are softer for kids','Four 200-LED strands (two inside, two outside)','Reusable green twist ties and zip ties','Star topper up to about 12" tall','Small disco ball, fishing line, S-hook, battery spotlight (optional)']],
+    ['Tools',['Saw for square cuts (miter saw or circular saw and speed square)','Drill/driver, tape measure, stepladder','3D printer with a bed of about 190 mm or more']]
+  ];
+  $('supplies').innerHTML=sup.map(s=>'<div><h3>'+s[0]+'</h3><ul>'+s[1].map(i=>'<li>'+i+'</li>').join('')+'</ul></div>').join('');
+  $('lightNote').textContent='One lap of lights at 6" row spacing is roughly '+Math.round(stringFeet(g))+' ft for this size.';
+  saveHash(p);
+  return g;
+}
+// Garland for the six sloped faces: average distance around ~3R, over the leg length.
+function garland(g,p){
+  const row=sp=>3*g.R*p.legLength/sp/12;   // feet of garland at a row spacing in inches
+  const baseFt=Math.round(row(5)/10)*10, fullFt=Math.round(row(12)/10)*10;
+  return {baseFt,fullFt,baseN:Math.ceil(row(5)/9),fullN:Math.ceil(row(12)/9)};
+}
+function stringFeet(g){ let tot=0; for(let z=3; z<g.legTop-4; z+=6){ const r=g.R-g.run*(z-DESIGN.footFloorHeight)/g.V; tot+=(z<g.doorHeight?5:6)*r; } return tot/12; }
+
+/* ---------- 3D model ---------- */
+let renderer, scene, camera, controls, group, reg={};
+const WOOD=0x4f7a5f, PETG=0xe0702a, GOLD=0xd4af37;
+function init3D(){
+  const view=$('view');
+  try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }catch(e){ $('viewMsg').style.display='flex'; return false; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setClearColor(0x000000,0);
+  view.insertBefore(renderer.domElement,view.firstChild);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(38,1,1,3000);
+  camera.position.set(125,85,170);
+  controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.target.set(0,50,0); controls.enableDamping=true; controls.maxPolarAngle=Math.PI*0.49; controls.minDistance=40; controls.maxDistance=600;
+  scene.add(new THREE.HemisphereLight(0xffffff,0x556655,0.85));
+  const dl=new THREE.DirectionalLight(0xffffff,0.75); dl.position.set(80,220,140); scene.add(dl);
+  const grid=new THREE.GridHelper(168,14,0x8a9aa0,0x8a9aa0); grid.material.transparent=true; grid.material.opacity=0.35; scene.add(grid);
+  group=new THREE.Group(); scene.add(group);
+  const resize=()=>{ const w=view.clientWidth,h=view.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
+  resize();
+  try{ new ResizeObserver(resize).observe(view); }catch(e){ window.addEventListener('resize',resize); }
+  (function loop(){ requestAnimationFrame(loop); controls.update(); renderer.render(scene,camera); })();
+  return true;
+}
+function addMesh(key,geo,color,opts){ const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial(Object.assign({color,roughness:.7,metalness:0},opts||{}))); (reg[key]=reg[key]||[]).push(m); group.add(m); return m; }
+function bar(key,from,to,w,color){
+  const d=new THREE.Vector3().subVectors(to,from), len=d.length(), up=d.clone().normalize();
+  let side=new THREE.Vector3(0,1,0).cross(up); if(side.lengthSq()<1e-6) side.set(1,0,0); side.normalize();
+  const fwd=new THREE.Vector3().crossVectors(side,up).normalize();
+  const m=addMesh(key,new THREE.BoxGeometry(w,len,w),color);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side,up,fwd));
+  m.position.copy(from).addScaledVector(d,0.5);
+  return m;
+}
+function starGeo(Ro){
+  const s=new THREE.Shape(), Ri=Ro*0.42;
+  for(let i=0;i<10;i++){ const r=i%2?Ri:Ro, a=Math.PI/2+i*Math.PI/5; const x=r*Math.cos(a), y=r*Math.sin(a); i?s.lineTo(x,y):s.moveTo(x,y); }
+  const geo=new THREE.ExtrudeGeometry(s,{depth:1.0,bevelEnabled:true,bevelThickness:.25,bevelSize:.2,bevelSegments:1});
+  geo.translate(0,0,-0.5); return geo;
+}
+function build(g){
+  if(!renderer) return;
+  group.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); });
+  scene.remove(group); group=new THREE.Group(); scene.add(group); reg={};
+  const V3=(x,y,z)=>new THREE.Vector3(x,y,z), rf=DESIGN.hubFloorRadius, zf=DESIGN.footFloorHeight;
+  const vs=[0,60,120,180,240,300].map(d=>{ const a=d*Math.PI/180; return {a,x:g.R*Math.cos(a),z:g.R*Math.sin(a)}; });
+  const feet=vs.map(v=>V3(v.x,zf,v.z));
+  const tops=vs.map(v=>V3(rf*Math.cos(v.a),g.legTop,rf*Math.sin(v.a)));
+  const ck=i=>(i===1||i===2)?'corner1':'corner2';
+  for(let i=0;i<6;i++){
+    bar('legs',feet[i],tops[i],1.5,WOOD);
+    const d=tops[i].clone().sub(feet[i]).normalize();
+    bar(ck(i),feet[i].clone().addScaledVector(d,-0.3),feet[i].clone().addScaledVector(d,2.2),2.0,PETG);
+    bar('hub',tops[i].clone().addScaledVector(d,-2.0),tops[i].clone().addScaledVector(d,0.3),2.0,PETG);
+    const body=addMesh(ck(i),new THREE.CylinderGeometry(1.34,1.34,1.85,6),PETG); body.position.set(vs[i].x,0.93,vs[i].z);
+  }
+  for(const [i,j] of [[0,1],[2,3],[3,4],[4,5],[5,0]]){
+    const a=V3(vs[i].x,0.93,vs[i].z), b=V3(vs[j].x,0.93,vs[j].z), dir=b.clone().sub(a).normalize();
+    bar('base',a.clone().addScaledVector(dir,DESIGN.armFloor),b.clone().addScaledVector(dir,-DESIGN.armFloor),1.5,WOOD);
+    bar(ck(i),a.clone().addScaledVector(dir,1.0),a.clone().addScaledVector(dir,3.5),1.85,PETG);
+    bar(ck(j),b.clone().addScaledVector(dir,-1.0),b.clone().addScaledVector(dir,-3.5),1.85,PETG);
+  }
+  const hub=addMesh('hub',new THREE.CylinderGeometry(1.65,1.65,1.5,6),PETG); hub.position.set(0,g.legTop-0.4,0);
+  const sp=addMesh('spike',new THREE.CylinderGeometry(0.24,0.49,DESIGN.starPost,24),PETG); sp.position.set(0,g.hubTop+DESIGN.starPost/2,0);
+  const Ro=10/1.809; const st=addMesh('star',starGeo(Ro),GOLD,{metalness:.35,roughness:.4}); st.position.set(0,g.hubTop+DESIGN.starPost-3+0.809*Ro,0);
+  const t=(g.doorHeight-zf)/g.V, P1=feet[1].clone().lerp(tops[1],t), P2=feet[2].clone().lerp(tops[2],t), hd=P2.clone().sub(P1).normalize();
+  bar('header',P1.clone().addScaledVector(hd,DESIGN.sleeveFloor),P2.clone().addScaledVector(hd,-DESIGN.sleeveFloor),1.5,WOOD);
+  for(const [P,i] of [[P1,1],[P2,2]]){ const d=tops[i].clone().sub(feet[i]).normalize(); bar('sleeve',P.clone().addScaledVector(d,-1.4),P.clone().addScaledVector(d,1.4),2.2,PETG); }
+  const hit=g.clearance<1;
+  const ce=addMesh('ceiling',new THREE.PlaneGeometry(150,150),hit?0xd9483b:0x9aa7b0,{transparent:true,opacity:hit?0.28:0.16,side:THREE.DoubleSide,depthWrite:false});
+  ce.rotation.x=-Math.PI/2; ce.position.y=g.ceiling;
+}
+let flashTimer;
+function flash(key){
+  if(!renderer) return;
+  clearTimeout(flashTimer);
+  Object.entries(reg).forEach(([k,list])=>list.forEach(m=>{ if(k==='ceiling') return; m.material.transparent=k!==key; m.material.opacity=k===key?1:0.18; m.material.emissive.setHex(k===key?0x663300:0x000000); }));
+  $('view').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+  flashTimer=setTimeout(refresh,2600);
+}
+
+function refresh(){ const p=read(); const g=updateUI(p); if(!validate(p).length) build(g); }
+['legLen','baseW','doorH','ceil','socket'].forEach(id=>$(id).addEventListener('input',refresh));
+$('fitBtn').addEventListener('click',()=>{ const g=deriveGeometry(read()); $('legLen').value=Math.max(72,Math.floor(g.maxLegForCeiling*4)/4); refresh(); });
+$('exampleBtn').addEventListener('click',()=>{ set(EXAMPLE); refresh(); });
+$('copyBtn').addEventListener('click',()=>{ const t=dimString(read())+' — '+location.href; navigator.clipboard.writeText(t).then(()=>$('copyMsg').textContent='Copied.',()=>$('copyMsg').textContent=t); });
+
+/* ---------- STL generation ---------- */
+let wasmPromise;
+function getWasm(){
+  if(!wasmPromise) wasmPromise=import(MANIFOLD_URL).then(async mod=>{ const w=await mod.default(); w.setup(); return w; });
+  return wasmPromise;
+}
+function download(name,data,type){
+  const url=URL.createObjectURL(new Blob([data],{type}));
+  const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+function slug(p){ return 'teepee-tree_leg'+p.legLength+'_base'+p.baseWidth+'_sock'+p.socketMm.toFixed(1); }
+async function generate(fitOnly){
+  const p=read();
+  const status=$('genStatus');
+  status.textContent='Loading the geometry engine…';
+  $('genBtn').disabled=$('fitTestBtn').disabled=true;
+  try{
+    const wasm=await getWasm();
+    status.textContent='Building parts…';
+    await new Promise(r=>setTimeout(r,30));
+    const parts=fitOnly?buildFitTests(wasm,p.socketMm):buildParts(wasm,p);
+    const zip=new JSZip(); const rows=[]; let grams=0;
+    for(const part of parts){
+      const stl=toSTL(part.manifold);
+      const fname=part.name+'.stl';
+      zip.file(fname,stl);
+      const g=gramsFor(part.manifold)*part.qty; grams+=g;
+      const bb=part.manifold.boundingBox();
+      const size=bb.max.map((v,i)=>Math.round(v-bb.min[i])).join(' × ');
+      const url=URL.createObjectURL(new Blob([stl],{type:'model/stl'}));
+      rows.push('<tr><td><a href="'+url+'" download="'+fname+'">'+fname+'</a></td><td class="num">×'+part.qty+'</td><td class="num">'+size+' mm</td><td class="num">≈'+Math.round(g)+' g</td><td>'+part.note+'</td></tr>');
+    }
+    const g=deriveGeometry(p);
+    zip.file('params.json',JSON.stringify({params:p,lean_deg:+g.lean.toFixed(2),frame_height_in:+g.hubTop.toFixed(2),star_top_in:+g.starTop.toFixed(2),base_piece_in:+g.basePiece.toFixed(3),crosspiece_in_approx:+g.crosspiece.toFixed(2),filament_g_approx:Math.round(grams),planner:location.href},null,2));
+    const blob=await zip.generateAsync({type:'uint8array'});
+    const name=(fitOnly?'fit-test_':'')+slug(p)+'.zip';
+    download(name,blob,'application/zip');
+    $('files').innerHTML='<table><thead><tr><th>File</th><th>Print</th><th>Size</th><th>Filament</th><th>Notes</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>';
+    status.textContent='Done: '+name+' (≈'+Math.round(grams)+' g PETG). Single files are linked below.';
+  }catch(e){
+    status.textContent='Could not build the files: '+e.message;
+  }finally{
+    $('genBtn').disabled=validate(read()).length>0; $('fitTestBtn').disabled=false;
+  }
+}
+$('genBtn').addEventListener('click',()=>generate(false));
+$('fitTestBtn').addEventListener('click',()=>generate(true));
+
+loadHash();
+init3D();
+refresh();
+</script>
+</body>
+</html>
